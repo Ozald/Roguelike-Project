@@ -7,9 +7,9 @@ public class EnemyBaseController : MonoBehaviour
 {
 
     [SerializeField]
-    public DefaultEnemyScriptableObject defaultEnemySO;
-    public IEnemyAttackType attackType;
-    public IEnemyMovement movementType;
+    public DefaultEnemySO defaultEnemySO;
+    public AbstractEnemyAttackType attackType;
+    public AbstractEnemyMovement movementType;
 
     
     // Start is called before the first frame update

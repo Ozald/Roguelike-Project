@@ -4,7 +4,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "New Enemy Type/Enemy Basic Data")]
-public class DefaultEnemyScriptableObject : ScriptableObject
+public class DefaultEnemySO : ScriptableObject
 {
     [Header("Basic Fields")]
     public string enemyName;

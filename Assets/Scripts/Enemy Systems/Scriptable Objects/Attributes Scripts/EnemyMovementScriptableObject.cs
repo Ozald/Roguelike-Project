@@ -5,7 +5,7 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "New Enemy Movement Type /Enemy -NAME TBA- Movement")]
 
-public class EnemyMovementScriptableObject : IEnemyMovement
+public class EnemyMovementScriptableObject : AbstractEnemyMovement
 {
 
     [SerializeField]

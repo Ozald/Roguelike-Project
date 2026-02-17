@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "New Enemy Attack/Enemy Heavy Attack")]
-public class AttackScriptableObject : IEnemyAttackType
+public class AttackScriptableObject : AbstractEnemyAttackType
 {
 
     [SerializeField]
