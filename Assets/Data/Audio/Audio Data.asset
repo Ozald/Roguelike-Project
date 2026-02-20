@@ -25,7 +25,7 @@ MonoBehaviour:
       Data2: 1103967633
       Data3: 148139410
       Data4: 389755042
-    Path: event:/BG Music
+    Path: event:/Floor1 BGMusic
   damageTaken:
     Guid:
       Data1: 0
