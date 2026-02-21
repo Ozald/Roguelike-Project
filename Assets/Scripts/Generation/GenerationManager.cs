@@ -9,6 +9,9 @@ public class GenerationManager : MonoBehaviour
     public int mapWidth;
     public int mapHeight;
     public int maxRoomsPerBranch;
+    public float extraHallsChance;
+    public int maxSpecialRooms;
+    public float specialRoomsChance;
     
     void Start()
     {
@@ -16,13 +19,13 @@ public class GenerationManager : MonoBehaviour
     }
 
     void Update()
-    {
-#if UNITY_EDITOR
+    {   
+        #if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Y))
         {
             GenerateFloorLayout();
         }
-#endif
+        #endif
     }
 
     public void GenerateFloorLayout()
@@ -37,6 +40,9 @@ public class GenerationManager : MonoBehaviour
 
         map.roomPrefab = roomPrefab;
         map.hallPrefab = hallPrefab;
+        map.extraHallsChance = extraHallsChance;
+        map.specialRooms = maxSpecialRooms;
+        map.specialRoomsChance = specialRoomsChance;
 
         map.GenerateMap(new(map.Width / 2, map.Height / 2));
     }

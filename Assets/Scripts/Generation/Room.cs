@@ -23,8 +23,9 @@ public class Room : Connectable
         set { maxConnections = value; }
     }
 
-    public bool IsOrigin { get; private set; } = false;
+    public bool IsOrigin { get; set; } = false;
     public bool IsEndRoom { get; set; } = false;
+    public bool IsSpecial { get; set; } = false;
 
     public Room()
     {

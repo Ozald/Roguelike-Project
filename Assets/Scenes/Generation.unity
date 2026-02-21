@@ -155,7 +155,10 @@ MonoBehaviour:
   hallPrefab: {fileID: 918799073537635806, guid: 8d51d8a13d8304a42bcba7ea843b622a, type: 3}
   mapWidth: 11
   mapHeight: 11
-  maxRoomsPerBranch: 4
+  maxRoomsPerBranch: 7
+  extraHallsChance: 0.075
+  maxSpecialRooms: 2
+  specialRoomsChance: 0.05
 --- !u!4 &409894598
 Transform:
   m_ObjectHideFlags: 0

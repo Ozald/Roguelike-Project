@@ -27,6 +27,11 @@ public class TileGraph : MonoBehaviour
     private readonly Dictionary<Hallway, Vector2> halls;
     private Vector2 startPos;
     public Room? Start;
+    public float extraHallsChance;
+    public int specialRooms;
+    public float specialRoomsChance;
+    
+    public float ExtraHallsChance { get => extraHallsChance; set => extraHallsChance = value; }
 
     public int Width
     {
@@ -113,11 +118,15 @@ public class TileGraph : MonoBehaviour
         Room startRoom = Instantiate(roomPrefab.gameObject, 
             new Vector3(startPosition.x * 5, startPosition.y * 5, 0), Quaternion.identity).GetComponent<Room>();
         StartPosition = startPosition;
+        startRoom.IsOrigin = true;
         Start = startRoom;
+        
+        startRoom.gameObject.GetComponent<Renderer>().material.color = Color.green;
 
         GenerateFrom(startRoom, startPosition, 0, (int)(MaxRoomsPerBranch * 0.75));
-        AddHalls(0.075f);
+        AddHalls(extraHallsChance);
         SetEndRoom();
+        SetSpecialRooms();
     }
 
     // Recursive helper for standard depth-first generation
@@ -136,15 +145,15 @@ public class TileGraph : MonoBehaviour
         if (!IsSpotEmpty(startVector))
             return false;
 
-        if (start == null)
+        if (start is null)
         {
             Debug.LogError("Start room is null.");
+            return false;
         }
-
-        PlaceAt(start, startVector);
-
+        
         if (!rooms.ContainsKey(start))
         {
+            PlaceAt(start, startVector);
             rooms.Add(start, startVector);
         }
 
@@ -797,36 +806,30 @@ public class TileGraph : MonoBehaviour
     public bool IsDeadEnd(Room room)
     {
         List<Vector2> directions = new();
-        directions.Add(new  Vector2(1, 0));
-        directions.Add(new  Vector2(-1, 0));
+        directions.Add(new Vector2(1, 0));
+        directions.Add(new Vector2(-1, 0));
         directions.Add(new Vector2(0, -1));
         directions.Add(new Vector2(0, 1));
+        
+        List<Connectable> list = new();
 
         if (rooms.TryGetValue(room, out Vector2 pos))
         {
-            List<Connectable> list = new();
-
             foreach (Vector2 dir in directions)
             {
-                Vector2 neigborPos = pos + dir;
+                Vector2 neighborPos = pos + dir;
 
-                if (!InBounds(neigborPos))
-                {
+                if (!InBounds(neighborPos))
                     continue;
-                }
 
-                if (GetAt(neigborPos) is null)
-                {
+                if (GetAt(neighborPos) is null)
                     continue;
-                }
 
-                list.Add(GetAt(neigborPos));
+                list.Add(GetAt(neighborPos));
             }
-
-            return list.Count == 1;
         }
 
-        return false;
+        return list.Count == 1;
     }
 
     // Finds the farthest dead end room from the starting point
@@ -858,6 +861,44 @@ public class TileGraph : MonoBehaviour
         if (farthest is not null)
         {
             farthest.IsEndRoom = true;
+            farthest.GetComponent<Renderer>().material.color = Color.red;
+        }
+    }
+
+    // Sets some rooms as "special" rooms
+    public void SetSpecialRooms()
+    {
+        Queue<Room> roomQueue = new Queue<Room>();
+
+        if (Start == null)
+            return;
+
+        roomQueue.Enqueue(Start);
+
+        int generated = 0;
+
+        while (roomQueue.Count > 0 && generated < specialRooms)
+        {
+            Room room = roomQueue.Dequeue();
+            
+            if ((float)random.NextDouble() < specialRoomsChance && !(room.IsSpecial || room.IsEndRoom || room.IsOrigin))
+            {
+                room.IsSpecial = true;
+                room.GetComponent<Renderer>().material.color = Color.magenta;
+                generated++;
+            }
+
+            if (room.Left != null)
+                roomQueue.Enqueue((Room)room.Left);
+
+            if (room.Right != null)
+                roomQueue.Enqueue((Room)room.Right);
+
+            if (room.Up != null)
+                roomQueue.Enqueue((Room)room.Up);
+
+            if (room.Down != null)
+                roomQueue.Enqueue((Room)room.Down);
         }
     }
 
