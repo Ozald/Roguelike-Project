@@ -5,9 +5,13 @@ public class GenerationManager : MonoBehaviour
     public Connectable roomPrefab;
     public Connectable hallPrefab;
 
+    public int mapWidth;
+    public int mapHeight;
+    public int maxRoomsPerBranch;
+    
     void Start()
     {
-        TileGraph map = new TileGraph(11, 11,7);
+        TileGraph map = new TileGraph(mapWidth, mapHeight,maxRoomsPerBranch);
         
         map.roomPrefab = roomPrefab;
         map.hallPrefab = hallPrefab;
