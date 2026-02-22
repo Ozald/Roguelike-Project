@@ -210,6 +210,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(-1, 0), start, (Room)start.Left);
                         connectionCount++;
                     }
+                    else
+                    {
+                        Destroy(start.Left.gameObject);
+                    }
 
                     break;
                 case Room.ConnectionDirection.Right:
@@ -223,6 +227,10 @@ public class TileGraph : MonoBehaviour
                         Console.WriteLine("Generating right branch");
                         PlaceHallAt(startVector + new Vector2(1, 0), start, (Room)start.Right);
                         connectionCount++;
+                    }
+                    else
+                    {
+                        Destroy(start.Right.gameObject);
                     }
 
                     break;
@@ -238,6 +246,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(0, -1), start, (Room)start.Up);
                         connectionCount++;
                     }
+                    else
+                    {
+                        Destroy(start.Up.gameObject);
+                    }
 
                     break;
                 case Room.ConnectionDirection.Down:
@@ -251,6 +263,10 @@ public class TileGraph : MonoBehaviour
                         Console.WriteLine("Generating down branch");
                         PlaceHallAt(startVector + new Vector2(0, 1), start, (Room)start.Down);
                         connectionCount++;
+                    }
+                    else
+                    {
+                        Destroy(start.Down.gameObject);
                     }
 
                     break;
@@ -274,27 +290,27 @@ public class TileGraph : MonoBehaviour
 
                 if (random.NextDouble() < chance)
                 {
-                    if (Math.Abs(xDist(originRoom, end)) == 2 && yDist(originRoom, end) == 0)
+                    if (Math.Abs(XDist(originRoom, end)) == 2 && YDist(originRoom, end) == 0)
                     {
-                        if (xDist(originRoom, end) == -2)
+                        if (XDist(originRoom, end) == -2)
                         {
                             if (PlaceHallAt(rooms[originRoom] + new Vector2(1, 0), originRoom, end))
                                 Console.WriteLine("Added extra right hall");
                         }
-                        else if (xDist(originRoom, end) == 2)
+                        else if (XDist(originRoom, end) == 2)
                         {
                             if (PlaceHallAt(rooms[originRoom] + new Vector2(-1, 0), originRoom, end))
                                 Console.WriteLine("Added extra left hall");
                         }
                     }
-                    else if (Math.Abs(yDist(originRoom, end)) == 2 && xDist(originRoom, end) == 0)
+                    else if (Math.Abs(YDist(originRoom, end)) == 2 && XDist(originRoom, end) == 0)
                     {
-                        if (yDist(originRoom, end) == 2)
+                        if (YDist(originRoom, end) == 2)
                         {
                             if (PlaceHallAt(rooms[originRoom] + new Vector2(0, -1), originRoom, end))
                                 Console.WriteLine("Added extra up hall");
                         }
-                        else if (yDist(originRoom, end) == -2)
+                        else if (YDist(originRoom, end) == -2)
                         {
                             if (PlaceHallAt(rooms[originRoom] + new Vector2(0, 1), originRoom, end))
                                 Console.WriteLine("Added extra down hall");
@@ -637,6 +653,7 @@ public class TileGraph : MonoBehaviour
             return true;
         }
 
+        Destroy(hall.gameObject);
         return false;
     }
 
@@ -656,7 +673,8 @@ public class TileGraph : MonoBehaviour
             Instantiate(connectable.gameObject, new Vector3(pos.x * 5, pos.y * 5, 0), connectable.transform.rotation);
             return true;
         }
-
+        
+        Destroy(connectable.gameObject);
         return false;
     }
 
@@ -770,7 +788,7 @@ public class TileGraph : MonoBehaviour
     }
 
     // x-coordinate distance between two rooms
-    private int xDist(Room room1, Room room2)
+    private int XDist(Room room1, Room room2)
     {
         Vector2 room1Pos = rooms[room1];
         Vector2 room2Pos = rooms[room2];
@@ -779,7 +797,7 @@ public class TileGraph : MonoBehaviour
     }
 
     // y-coordinate distance between two rooms.
-    private int yDist(Room room1, Room room2)
+    private int YDist(Room room1, Room room2)
     {
         Vector2 room1Pos = rooms[room1];
         Vector2 room2Pos = rooms[room2];
@@ -901,7 +919,8 @@ public class TileGraph : MonoBehaviour
                 roomQueue.Enqueue((Room)room.Down);
         }
     }
-
+    
+    /*
     // Prints a compressed view of the
     // grid.
     public void PrintCompressed()
@@ -964,6 +983,7 @@ public class TileGraph : MonoBehaviour
             }
         }
     }
+    */
 
     public override string ToString()
     {

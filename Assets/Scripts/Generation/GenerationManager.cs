@@ -28,7 +28,7 @@ public class GenerationManager : MonoBehaviour
         #endif
     }
 
-    public void GenerateFloorLayout()
+    void GenerateFloorLayout()
     {
         List<Connectable> roomCollection = new List<Connectable>(FindObjectsByType<Connectable>(FindObjectsSortMode.None));
         foreach (Connectable room in roomCollection)
