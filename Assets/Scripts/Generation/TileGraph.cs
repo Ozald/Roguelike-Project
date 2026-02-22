@@ -229,6 +229,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(-1, 0), start, (Room)start.Left);
                         start.Left = tempLeft;
                         connectionCount++;
+                        
+                        // Scuffed
+                        if(start.Left is not null)
+                            ((Room)start.Left).Right = start;
                     }
                     else
                     {
@@ -249,6 +253,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(1, 0), start, (Room)start.Right);
                         start.Right = tempRight;
                         connectionCount++;
+                        
+                        // Scuffed
+                        if(start.Right is not null)
+                            ((Room)start.Right).Left = start;
                     }
                     else
                     {
@@ -269,6 +277,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(0, -1), start, (Room)start.Up);
                         start.Up = tempUp;
                         connectionCount++;
+                        
+                        // Scuffed
+                        if(start.Up is not null)
+                            ((Room)start.Up).Down = start;
                     }
                     else
                     {
@@ -289,6 +301,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(0, 1), start, (Room)start.Down);
                         start.Down = tempDown;
                         connectionCount++;
+                        
+                        // Scuffed
+                        if(start.Down is not null)
+                            ((Room)start.Down).Up = start;
                     }
                     else
                     {
