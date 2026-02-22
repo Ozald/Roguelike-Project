@@ -158,7 +158,7 @@ MonoBehaviour:
   maxRoomsPerBranch: 7
   extraHallsChance: 0.075
   maxSpecialRooms: 2
-  specialRoomsChance: 0.05
+  specialRoomsChance: 0.08
 --- !u!4 &409894598
 Transform:
   m_ObjectHideFlags: 0
