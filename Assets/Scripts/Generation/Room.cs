@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using JetBrains.Annotations;
 
 public class Room : Connectable
 {
@@ -12,10 +12,34 @@ public class Room : Connectable
 
     private int maxConnections;
 
-    public Connectable? Left { get; set; } = null;
-    public Connectable? Right { get; set; } = null;
-    public Connectable? Up { get; set; } = null;
-    public Connectable? Down { get; set; } = null;
+    [CanBeNull] private Connectable left;
+    [CanBeNull] private Connectable up;
+    [CanBeNull] private Connectable right;
+    [CanBeNull] private Connectable down;
+
+    public Connectable? Left
+    {
+        get { return left; }
+        set { left = value; }
+    }
+    
+    public Connectable? Up
+    {
+        get { return up; }
+        set { up = value; }
+    }
+    
+    public Connectable? Right
+    {
+        get { return right; }
+        set { right = value; }
+    }
+    
+    public Connectable? Down
+    {
+        get { return down; }
+        set { down = value; }
+    }
 
     public int MaxConnections
     {
@@ -63,6 +87,11 @@ public class Room : Connectable
         if (IsEndRoom)
         {
             return "E";
+        }
+
+        if (IsSpecial)
+        {
+            return "S";
         }
 
         return "R";

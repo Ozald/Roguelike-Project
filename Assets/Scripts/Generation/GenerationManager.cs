@@ -31,6 +31,7 @@ public class GenerationManager : MonoBehaviour
     void GenerateFloorLayout()
     {
         List<Connectable> roomCollection = new List<Connectable>(FindObjectsByType<Connectable>(FindObjectsSortMode.None));
+        
         foreach (Connectable room in roomCollection)
         {
             Destroy(room.gameObject);
@@ -41,7 +42,7 @@ public class GenerationManager : MonoBehaviour
         map.roomPrefab = roomPrefab;
         map.hallPrefab = hallPrefab;
         map.extraHallsChance = extraHallsChance;
-        map.specialRooms = maxSpecialRooms;
+        map.maxSpecialRooms = maxSpecialRooms;
         map.specialRoomsChance = specialRoomsChance;
 
         map.GenerateMap(new(map.Width / 2, map.Height / 2));

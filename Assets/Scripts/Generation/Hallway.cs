@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class Hallway : Connectable
+﻿public class Hallway : Connectable
 {
     private Connectable? origin;
     private Connectable? end;

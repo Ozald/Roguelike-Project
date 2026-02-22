@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = System.Random;
 using Vector2 = UnityEngine.Vector2;
 
@@ -28,7 +30,7 @@ public class TileGraph : MonoBehaviour
     private Vector2 startPos;
     public Room? Start;
     public float extraHallsChance;
-    public int specialRooms;
+    [FormerlySerializedAs("specialRooms")] public int maxSpecialRooms;
     public float specialRoomsChance;
     
     public float ExtraHallsChance { get => extraHallsChance; set => extraHallsChance = value; }
@@ -116,48 +118,64 @@ public class TileGraph : MonoBehaviour
         // Create the starting room and start the recursive generation
         // Rule: The origin room has 4 possible branches
         Room startRoom = Instantiate(roomPrefab.gameObject, 
-            new Vector3(startPosition.x * 5, startPosition.y * 5, 0), Quaternion.identity).GetComponent<Room>();
+            new Vector3(startPosition.x, startPosition.y, 0), Quaternion.identity).GetComponent<Room>();
         StartPosition = startPosition;
         startRoom.IsOrigin = true;
         Start = startRoom;
         
+        // It works here, but not in the two other places?
+        startRoom.gameObject.name = "StartRoom";
         startRoom.gameObject.GetComponent<Renderer>().material.color = Color.green;
 
-        GenerateFrom(startRoom, startPosition, 0, (int)(MaxRoomsPerBranch * 0.75));
+        GenerateFrom(startRoom, startPosition, 0, (int)(MaxRoomsPerBranch * 0.75), out startRoom);
         AddHalls(extraHallsChance);
         SetEndRoom();
         SetSpecialRooms();
+        
+        Debug.Log($"Generated {rooms.Count} rooms.");
+        Debug.Log($"Generated {halls.Count} halls.");
     }
 
     // Recursive helper for standard depth-first generation
-    private bool GenerateFrom(Room start, Vector2 startVector, int roomsGenerated, int penaltySafety)
+    [CanBeNull]
+    private Room GenerateFrom(Room start, Vector2 startVector, int roomsGenerated, int penaltySafety, out Room room)
     {
         if (roomsGenerated >= maxRoomsPerBranch)
-            return false;
+        {
+            room = null;
+            return null;
+        }
 
         if (!InBounds(startVector))
-            return false;
+        {
+            room = null;
+            return null;
+        }
 
         // Prevent generating rooms on top of each other.
         // This should also stop hallways from overwriting things.
         // This was really only here because the origin room kept
         // getting overwritten.
         if (!IsSpotEmpty(startVector))
-            return false;
+        {
+            room = null;
+            return null;
+        }
 
         if (start is null)
         {
-            Debug.LogError("Start room is null.");
-            return false;
+            Debug.Log("Start room is null.");
+            room = null;
+            return null;
         }
         
-        if (!rooms.ContainsKey(start))
-        {
-            PlaceAt(start, startVector);
-            rooms.Add(start, startVector);
-        }
+        PlaceAt(ref start, startVector);
+        rooms.Add(start, startVector);
 
-        // Randomize the order that we generate the directions in
+        Debug.Log("Layer: " + roomsGenerated);
+        
+        // Randomize the order that we generate the directions in.
+        // Honestly quite dumb the way we had to get this.
         PriorityQueue<Room.ConnectionDirection> connections = new();
 
         foreach (Room.ConnectionDirection direction in Enum.GetValues(typeof(Room.ConnectionDirection)))
@@ -199,81 +217,80 @@ public class TileGraph : MonoBehaviour
             {
                 case Room.ConnectionDirection.Left:
                     //random.Next(roomsGenerated < maxRoomsPerBranch / 4 ? 2 : 1, 5)
-                    start.Left = Instantiate(roomPrefab.gameObject, 
-                        new Vector3(startVector.x * 5, startVector.y * 5, 0), Quaternion.identity).GetComponent<Room>();
+                    start.Left = Instantiate(roomPrefab).GetComponent<Room>();
+                    Destroy(start.Left.gameObject);
+                    Room tempLeft = null;
 
                     if (roomsGenerated < maxRoomsPerBranch - 1
                         && GenerateFrom((Room)start.Left, startVector + new Vector2(-2, 0), roomsGenerated + 1,
-                            penaltySafety))
+                            penaltySafety, out tempLeft) is not null)
                     {
                         Console.WriteLine("Generating left branch");
                         PlaceHallAt(startVector + new Vector2(-1, 0), start, (Room)start.Left);
+                        start.Left = tempLeft;
                         connectionCount++;
-                    }
-                    else
-                    {
-                        Destroy(start.Left.gameObject);
                     }
 
                     break;
                 case Room.ConnectionDirection.Right:
-                    start.Right = Instantiate(roomPrefab.gameObject, 
-                        new Vector3(startVector.x * 5, startVector.y * 5, 0), Quaternion.identity).GetComponent<Room>();
-
+                    start.Right = Instantiate(roomPrefab).GetComponent<Room>();
+                    Destroy(start.Right.gameObject);
+                    Room tempRight = null;
+                    
                     if (roomsGenerated < maxRoomsPerBranch - 1
                         && GenerateFrom((Room)start.Right, startVector + new Vector2(2, 0), roomsGenerated + 1,
-                            penaltySafety))
+                            penaltySafety, out tempRight) is not null)
                     {
                         Console.WriteLine("Generating right branch");
                         PlaceHallAt(startVector + new Vector2(1, 0), start, (Room)start.Right);
+                        start.Right = tempRight;
                         connectionCount++;
-                    }
-                    else
-                    {
-                        Destroy(start.Right.gameObject);
                     }
 
                     break;
                 case Room.ConnectionDirection.Up:
-                    start.Up = Instantiate(roomPrefab.gameObject, 
-                        new Vector3(startVector.x * 5, startVector.y * 5, 0), Quaternion.identity).GetComponent<Room>();
-
+                    start.Up = Instantiate(roomPrefab).GetComponent<Room>();
+                    Destroy(start.Up.gameObject);
+                    Room tempUp = null;
+                    
                     if (roomsGenerated < maxRoomsPerBranch - 1
                         && GenerateFrom((Room)start.Up, startVector + new Vector2(0, -2), roomsGenerated + 1,
-                            penaltySafety))
+                            penaltySafety, out tempUp) is not null)
                     {
                         Console.WriteLine("Generating up branch");
                         PlaceHallAt(startVector + new Vector2(0, -1), start, (Room)start.Up);
+                        start.Up = tempUp;
                         connectionCount++;
-                    }
-                    else
-                    {
-                        Destroy(start.Up.gameObject);
                     }
 
                     break;
                 case Room.ConnectionDirection.Down:
-                    start.Down = Instantiate(roomPrefab.gameObject, 
-                        new Vector3(startVector.x * 5, startVector.y * 5, 0), Quaternion.identity).GetComponent<Room>();
+                    start.Down = Instantiate(roomPrefab).GetComponent<Room>();
+                    Destroy(start.Down.gameObject);
+                    Room tempDown = null;
 
                     if (roomsGenerated < maxRoomsPerBranch - 1
                         && GenerateFrom((Room)start.Down, startVector + new Vector2(0, 2), roomsGenerated + 1,
-                            penaltySafety))
+                            penaltySafety, out tempDown) is not null)
                     {
                         Console.WriteLine("Generating down branch");
                         PlaceHallAt(startVector + new Vector2(0, 1), start, (Room)start.Down);
+                        start.Down = tempDown;
                         connectionCount++;
-                    }
-                    else
-                    {
-                        Destroy(start.Down.gameObject);
                     }
 
                     break;
             }
         }
+        
+        Debug.Log("Layer: " + roomsGenerated + " connections");
+        Debug.Log("Left: " + start.Left);
+        Debug.Log("Right: " + start.Right);
+        Debug.Log("Up: " + start.Up);
+        Debug.Log("Down: " + start.Down);
 
-        return true;
+        room = start;
+        return start;
     }
 
     // Adds extra halls to the map
@@ -647,7 +664,7 @@ public class TileGraph : MonoBehaviour
         hall.Origin = origin;
         hall.End = end;
         
-        if (PlaceAt(hall, pos))
+        if (PlaceAt(ref hall, pos))
         {
             halls.Add(hall, pos);
             return true;
@@ -658,23 +675,38 @@ public class TileGraph : MonoBehaviour
     }
 
 
-    // Places an item at a grid position
-    public bool PlaceAt(Connectable connectable, Vector2 pos)
+    // Places an item at a grid position.
+    // Holy crap does this solution suck
+    public bool PlaceAt(ref Room room, Vector2 pos)
     {
+        Destroy(room.gameObject);
+        
         if (IsSpotEmpty(pos))
         {
-            grid[(int)pos.x, (int)pos.y] = connectable;
-
-            if (connectable == null)
-            {
-                return false;
-            }
+            grid[(int)pos.x, (int)pos.y] = room;
             
-            Instantiate(connectable.gameObject, new Vector3(pos.x * 5, pos.y * 5, 0), connectable.transform.rotation);
+            room = Instantiate(room.gameObject, new Vector3(pos.x * 5, pos.y * 5, 0), Quaternion.identity).GetComponent<Room>();
             return true;
         }
         
-        Destroy(connectable.gameObject);
+        return false;
+    }
+    
+    // Places an item at a grid position
+    // Holy crap does this solution suck
+    public bool PlaceAt(ref Hallway hall, Vector2 pos)
+    {
+        Destroy(hall.gameObject);
+        
+        if (IsSpotEmpty(pos))
+        {
+            grid[(int)pos.x, (int)pos.y] = hall;
+            
+            hall = Instantiate(hall.gameObject, new Vector3(pos.x * 5, pos.y * 5, 0), Quaternion.identity)
+                .GetComponent<Hallway>();
+            return true;
+        }
+        
         return false;
     }
 
@@ -875,48 +907,45 @@ public class TileGraph : MonoBehaviour
     public void SetEndRoom()
     {
         Room? farthest = GetFarthestDeadEnd();
-
+        
         if (farthest is not null)
         {
+            Debug.Log("End room found.");
+            
             farthest.IsEndRoom = true;
-            farthest.GetComponent<Renderer>().material.color = Color.red;
+            // This works. I don't want to know.
+            farthest.gameObject.name = "End_Room";
+            farthest.gameObject.GetComponent<Renderer>().material.color = Color.red;
+            
+            Debug.Log(farthest.gameObject);
         }
     }
 
     // Sets some rooms as "special" rooms
     public void SetSpecialRooms()
     {
-        Queue<Room> roomQueue = new Queue<Room>();
-
         if (Start == null)
             return;
 
-        roomQueue.Enqueue(Start);
-
         int generated = 0;
 
-        while (roomQueue.Count > 0 && generated < specialRooms)
+        foreach(Room room in rooms.Keys)
         {
-            Room room = roomQueue.Dequeue();
-            
-            if ((float)random.NextDouble() < specialRoomsChance && !(room.IsSpecial || room.IsEndRoom || room.IsOrigin))
+            if(generated >= maxSpecialRooms)
+                break;
+
+            if(room.IsOrigin || room.IsSpecial || room.IsEndRoom)
+                continue;
+
+            if(random.NextDouble() < specialRoomsChance)
             {
                 room.IsSpecial = true;
-                room.GetComponent<Renderer>().material.color = Color.magenta;
+
+                room.gameObject.GetComponent<Renderer>().material.color = Color.magenta;
+                room.gameObject.name = "Special_Room_" + (generated + 1);
+
                 generated++;
             }
-
-            if (room.Left != null)
-                roomQueue.Enqueue((Room)room.Left);
-
-            if (room.Right != null)
-                roomQueue.Enqueue((Room)room.Right);
-
-            if (room.Up != null)
-                roomQueue.Enqueue((Room)room.Up);
-
-            if (room.Down != null)
-                roomQueue.Enqueue((Room)room.Down);
         }
     }
     
