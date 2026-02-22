@@ -230,6 +230,10 @@ public class TileGraph : MonoBehaviour
                         start.Left = tempLeft;
                         connectionCount++;
                     }
+                    else
+                    {
+                        start.Left = null;
+                    }
 
                     break;
                 case Room.ConnectionDirection.Right:
@@ -245,6 +249,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(1, 0), start, (Room)start.Right);
                         start.Right = tempRight;
                         connectionCount++;
+                    }
+                    else
+                    {
+                        start.Right = null;
                     }
 
                     break;
@@ -262,6 +270,10 @@ public class TileGraph : MonoBehaviour
                         start.Up = tempUp;
                         connectionCount++;
                     }
+                    else
+                    {
+                        start.Up = null;
+                    }
 
                     break;
                 case Room.ConnectionDirection.Down:
@@ -277,6 +289,10 @@ public class TileGraph : MonoBehaviour
                         PlaceHallAt(startVector + new Vector2(0, 1), start, (Room)start.Down);
                         start.Down = tempDown;
                         connectionCount++;
+                    }
+                    else
+                    {
+                        start.Down = null;
                     }
 
                     break;
@@ -679,6 +695,8 @@ public class TileGraph : MonoBehaviour
     // Holy crap does this solution suck
     public bool PlaceAt(ref Room room, Vector2 pos)
     {
+        bool isOrigin = room.IsOrigin;
+        
         Destroy(room.gameObject);
         
         if (IsSpotEmpty(pos))
@@ -686,6 +704,8 @@ public class TileGraph : MonoBehaviour
             grid[(int)pos.x, (int)pos.y] = room;
             
             room = Instantiate(room.gameObject, new Vector3(pos.x * 5, pos.y * 5, 0), Quaternion.identity).GetComponent<Room>();
+            room.IsOrigin = isOrigin; // We NEED to preserve this, otherwise funny issues
+            
             return true;
         }
         
@@ -924,7 +944,7 @@ public class TileGraph : MonoBehaviour
     // Sets some rooms as "special" rooms
     public void SetSpecialRooms()
     {
-        if (Start == null)
+        if(Start == null)
             return;
 
         int generated = 0;
