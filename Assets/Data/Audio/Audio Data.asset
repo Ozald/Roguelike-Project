@@ -19,3 +19,17 @@ MonoBehaviour:
       Data3: -637592134
       Data4: 1914749715
     Path: event:/TestSFX
+  floor1:
+    Guid:
+      Data1: -1238738198
+      Data2: 1103967633
+      Data3: 148139410
+      Data4: 389755042
+    Path: event:/Floor1 BGMusic
+  damageTaken:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
