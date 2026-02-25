@@ -3,20 +3,33 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+[RequireComponent(typeof(BoxCollider2D))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class EnemyBaseController : MonoBehaviour
 {
 
     [SerializeField]
     public DefaultEnemySO defaultEnemySO;
-    public AbstractEnemyAttackType attackType;
     public AbstractEnemyMovement movementType;
-
     
-    // Start is called before the first frame update
+    //public AbstractEnemyAttackType attackType;
+    
+    // ^ I think instead of an attack type, the weapon will take in the Attacks rather than the enemy
+    //Then we give a weapon type to the Enemy script here
+    
+    
+    
+    
     void Start()
-    {
-      //Locate if theres an active target found in the map, if not, send an error in console
+    { 
         
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        BoxCollider2D coll = GetComponent<BoxCollider2D>(); //for the base enemy's sprite
+        coll.isTrigger = true;
+        coll.size =  spriteRenderer.bounds.size;
+        
+
+
     }
 
     // Update is called once per frame
