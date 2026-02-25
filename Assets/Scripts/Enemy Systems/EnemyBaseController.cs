@@ -15,13 +15,13 @@ public class EnemyBaseController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-      
+      //Locate if theres an active target found in the map, if not, send an error in console
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //check constantly for target location
     }
 }
